@@ -230,7 +230,7 @@ dsh-tenancy 保护通过其契约完成的操作：
 |---|---|
 | [Tenancy 协议](docs/tenancy-protocol.md) | Protocol v1 声明和 Runtime 不变量 |
 | [资源契约](docs/resource-contracts.md) | LLM、Credential 和 Storage 契约 |
-| [集成指南](docs/integration-guide.md) | DSH/Cordis Agent placement 集成 |
+| [集成指南](docs/integration-guide.md) | DSH/Cordis Agent placement 和 Agent Bridge 集成 |
 | [v0.3 集成](docs/integrations.md) | HTTP、JWT、PostgreSQL 和 MCP Adapter |
 | [v1 兼容策略](docs/v1-compatibility.md) | 协议和包版本兼容策略 |
 | [插件开发指南](docs/plugin-author-guide.md) | 编写和测试 tenant-aware 插件 |

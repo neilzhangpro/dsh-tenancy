@@ -71,6 +71,14 @@
       "dependencies": ["dsh-installable-bundle"],
       "status": "done",
       "evidence": "docs/v1-compatibility.md; packages/core/src/runtime.test.ts"
+    },
+    {
+      "id": "dsh-agent-bridge",
+      "name": "Tenant-aware DSH Agent bridge",
+      "description": "Claims session ownership before DSH Agent creation and invokes tenant placement during unpublished Agent setup",
+      "dependencies": ["v0.3-integrations", "tenant-dashboard-demo"],
+      "status": "done",
+      "evidence": "packages/integrations/src/dsh-agent.ts; packages/integrations/src/dsh-agent.test.ts; docs/integration-guide.md"
     }
   ]
 }

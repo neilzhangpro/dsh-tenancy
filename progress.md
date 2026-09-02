@@ -36,17 +36,20 @@ Latest v0.1 run (2026-09-02): `npm run verify` passed TypeScript compilation,
 - Added an executable HTTP/JWT composition example.
 - Added the visual Tenant Lab dashboard with local JWT issuing, protected API
   routes, tenant plugin mount/unmount controls, and session claim demonstration.
+- Added `TenantDshAgentBridge`: claims tenant session ownership before calling
+  DSH `ctx.agents.create()` and places tenant scope during unpublished Agent setup.
 
 ## Latest verification
 
-2026-09-03: `npm run verify` passed strict TypeScript compilation, 28/28 Node
-tests including the Tenant Lab HTTP smoke test, a real Cordis context, a Node
-crypto HS256 verifier integration, LLM client eviction/lifecycle, the real
-two-tenant LLM-routing demo, and the HTTP/JWT context demo. Dry run package
-audits passed for all five public packages without shipping tests.
+2026-09-03: `npm run verify` passed strict TypeScript compilation, 29/29 Node
+tests including Tenant Lab HTTP smoke, a real Cordis context, DSH Agent bridge
+ownership/setup, a Node crypto HS256 verifier integration, LLM client
+eviction/lifecycle, the real two-tenant LLM-routing demo, and the HTTP/JWT
+context demo. Dry run package audits passed for all five public packages without
+shipping tests.
 Run `./init.sh` to reproduce all checks from a clean checkout.
 
-GitNexus index: 484 nodes, 1,182 relationships, 35 clusters, and 23 flows
+GitNexus index: 587 nodes, 1,424 relationships, 42 clusters, and 31 flows
 created with `npx gitnexus analyze`.
 
 ## Recommended Next Step
