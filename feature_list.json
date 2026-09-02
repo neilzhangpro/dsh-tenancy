@@ -1,11 +1,44 @@
 {
-  "version": 1,
-  "activeFeature": null,
   "features": [
-    { "id": "v0.1-tenant-runtime", "status": "done", "evidence": "packages/core/src/runtime.test.ts" },
-    { "id": "v0.1-plugin-admission", "status": "done", "evidence": "packages/core/src/runtime.test.ts" },
-    { "id": "v0.1-session-ownership", "status": "done", "evidence": "packages/core/src/sessions.test.ts" },
-    { "id": "v0.1-compliance-kit", "status": "done", "evidence": "packages/testing/src/index.test.ts" },
-    { "id": "v0.1-demo-and-docs", "status": "done", "evidence": "examples/two-tenants-one-process/src/index.ts" }
+    {
+      "id": "v0.1-tenant-runtime",
+      "name": "Tenant runtime and scope hierarchy",
+      "description": "Validated identities, context propagation, scope placement, and lifecycle",
+      "dependencies": [],
+      "status": "done",
+      "evidence": "packages/core/src/runtime.test.ts"
+    },
+    {
+      "id": "v0.1-plugin-session",
+      "name": "Plugin admission and session ownership",
+      "description": "Default-deny protocol gate, atomic ownership, migration, and compliance tests",
+      "dependencies": ["v0.1-tenant-runtime"],
+      "status": "done",
+      "evidence": "packages/core/src/sessions.test.ts; packages/testing/src/index.test.ts"
+    },
+    {
+      "id": "v0.2-resource-contracts",
+      "name": "Tenant LLM and storage contracts",
+      "description": "Credential references, fail-closed LLM routing, safe namespaces, and memory adapters",
+      "dependencies": ["v0.1-plugin-session"],
+      "status": "done",
+      "evidence": "packages/llm/src/index.test.ts; packages/storage/src/index.test.ts"
+    },
+    {
+      "id": "v0.3-integrations",
+      "name": "HTTP, JWT, PostgreSQL, and MCP integrations",
+      "description": "Authenticated context composition, durable ownership provider, and tenant MCP routing",
+      "dependencies": ["v0.2-resource-contracts"],
+      "status": "done",
+      "evidence": "packages/integrations/src/integrations.test.ts; examples/http-jwt-middleware/src/index.ts"
+    },
+    {
+      "id": "v0.3-verification-docs",
+      "name": "v0.2 and v0.3 verification and documentation",
+      "description": "Negative tests, executable demos, release package audits, and integration documentation",
+      "dependencies": ["v0.3-integrations"],
+      "status": "done",
+      "evidence": "npm run verify: 21/21 tests; docs/resource-contracts.md; docs/integrations.md"
+    }
   ]
 }

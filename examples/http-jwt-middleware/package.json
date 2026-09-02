@@ -1,11 +1,11 @@
 {
-  "name": "@dsh-tenancy/example-two-tenants",
-  "version": "0.1.0",
+  "name": "@dsh-tenancy/example-http-jwt-middleware",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "dependencies": {
     "@dsh-tenancy/core": "0.1.0",
-    "@dsh-tenancy/llm": "0.2.0"
+    "@dsh-tenancy/integrations": "0.3.0"
   },
   "scripts": { "build": "tsc -b" }
 }

@@ -1,0 +1,14 @@
+{
+  "name": "@dsh-tenancy/llm",
+  "version": "0.2.0",
+  "description": "Tenant-aware LLM routing and credential reference contracts",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "files": ["dist/index.js", "dist/index.d.ts"],
+  "dependencies": { "@dsh-tenancy/core": "0.1.0" },
+  "scripts": { "build": "tsc -b" },
+  "engines": { "node": ">=20" }
+}

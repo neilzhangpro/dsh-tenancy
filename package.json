@@ -1,6 +1,6 @@
 {
   "name": "dsh-tenancy",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "description": "The missing tenant scope for DeepSeek Harness",
   "license": "MIT",
@@ -10,8 +10,8 @@
   "scripts": {
     "build": "tsc -b",
     "check": "tsc -b --pretty false",
-    "test": "npm run build && node --test packages/core/dist/*.test.js packages/testing/dist/*.test.js",
-    "demo": "npm run build && node examples/two-tenants-one-process/dist/index.js",
+    "test": "npm run build && node --test packages/*/dist/*.test.js",
+    "demo": "npm run build && node examples/two-tenants-one-process/dist/index.js && node examples/http-jwt-middleware/dist/index.js",
     "verify": "npm run check && npm test && npm run demo"
   },
   "devDependencies": {

@@ -1,0 +1,14 @@
+{
+  "name": "@dsh-tenancy/integrations",
+  "version": "0.3.0",
+  "description": "HTTP, verified JWT claim, PostgreSQL session ownership, and MCP integrations",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "files": ["dist/*.js", "dist/*.d.ts", "!dist/*.test.js", "!dist/*.test.d.ts"],
+  "dependencies": { "@dsh-tenancy/core": "0.1.0" },
+  "scripts": { "build": "tsc -b" },
+  "engines": { "node": ">=20" }
+}

@@ -17,3 +17,6 @@ createScope(loopCtx, agent, { parent: tenant.key })
 The application must reject requests lacking authenticated tenant identity before
 calling this package. It must also check session ownership before DSH persistence
 is read, not after session contents have already been loaded.
+
+For v0.2 resource providers, see `resource-contracts.md`. For the v0.3 HTTP,
+verified-claims, PostgreSQL, and MCP adapters, see `integrations.md`.

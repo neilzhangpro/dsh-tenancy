@@ -3,6 +3,10 @@
   "references": [
     { "path": "packages/core" },
     { "path": "packages/testing" },
-    { "path": "examples/two-tenants-one-process" }
+    { "path": "packages/llm" },
+    { "path": "packages/storage" },
+    { "path": "packages/integrations" },
+    { "path": "examples/two-tenants-one-process" },
+    { "path": "examples/http-jwt-middleware" }
   ]
 }

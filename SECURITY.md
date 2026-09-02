@@ -11,5 +11,6 @@ Report vulnerabilities privately to the repository maintainers. Do not include
 live credentials or tenant data in a report. The supported line is v0.1.x.
 
 The security boundary covers contexts, registrations, lifecycle, admission, and
-session ownership handled through this library. It does not cover direct access
+session ownership handled through this library, plus routing performed through
+the documented LLM, storage, PostgreSQL, and MCP adapters. It does not cover direct access
 to `process.env`, globals, the filesystem, subprocesses, or native modules.

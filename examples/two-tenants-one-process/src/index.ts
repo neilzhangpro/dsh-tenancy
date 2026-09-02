@@ -2,6 +2,9 @@ import {
   MemorySessionOwnershipProvider, TenantPluginRejectedError, TenantRuntime,
   TenantSessionRegistry, createMemoryScopeAdapter,
 } from '@dsh-tenancy/core'
+import {
+  CredentialRef, MemoryTenantCredentialResolver, MemoryTenantLlmResolver, TenantLlmRouter,
+} from '@dsh-tenancy/llm'
 
 const runtime = new TenantRuntime(createMemoryScopeAdapter())
 const sessions = new TenantSessionRegistry(new MemorySessionOwnershipProvider())
@@ -18,8 +21,20 @@ const tools = ['global-search', 'acme-crm', 'globex-erp']
 
 console.log(`✓ tenant acme sees:    [${visible(acme, tools).join(', ')}]`)
 console.log(`✓ tenant globex sees:  [${visible(globex, tools).join(', ')}]`)
-console.log('✓ acme uses LLM key:   acme-*** (application adapter example)')
-console.log('✓ globex uses LLM key: globex-*** (application adapter example)')
+const profiles = new MemoryTenantLlmResolver()
+const credentials = new MemoryTenantCredentialResolver()
+const acmeRef = CredentialRef('vault/acme/llm'); const globexRef = CredentialRef('vault/globex/llm')
+profiles.set(acme.id, { provider: 'fake', model: 'deepseek-chat', credentialRef: acmeRef, version: '1' })
+profiles.set(globex.id, { provider: 'fake', model: 'deepseek-chat', credentialRef: globexRef, version: '1' })
+credentials.set(acme.id, acmeRef, 'acme-private-key')
+credentials.set(globex.id, globexRef, 'globex-private-key')
+const llm = new TenantLlmRouter<{ key: string }>(profiles, credentials)
+const routedKey = (ctx: typeof acme.ctx) => llm.call(ctx, {
+  createClient: (_profile, key) => ({ key }),
+  execute: async (client) => `${client.key.slice(0, client.key.indexOf('-'))}-***`,
+})
+console.log(`✓ acme uses LLM key:   ${await routedKey(acme.ctx)}`)
+console.log(`✓ globex uses LLM key: ${await routedKey(globex.ctx)}`)
 
 await sessions.claim(acme.ctx, 'session-1')
 try {

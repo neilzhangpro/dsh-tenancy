@@ -19,3 +19,8 @@ A later `resolve` creates a new generation with no registrations from the old on
 
 Session ownership is the tuple `(tenantId, sessionId)`. Claims are atomic in the
 provider, legacy sessions without metadata fail closed, and ownership is immutable.
+
+Resource providers extend the same rule: they receive `Tenant` or
+`TenantContext`, never an unverified free-standing ID. LLM profiles contain only
+credential references, storage namespaces begin with the tenant identity, and
+MCP resolution has no implicit global fallback.
