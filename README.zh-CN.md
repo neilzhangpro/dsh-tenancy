@@ -118,6 +118,16 @@ npm run demo
 Demo 会在一条命令中展示租户工具隔离、凭据路由、Session 所有权、旧插件
 拒绝，以及 HTTP/JWT Tenant Context 传播。
 
+### 运行可视化 Tenant Lab
+
+```bash
+npm run demo:dashboard
+# 打开 http://localhost:4173
+```
+
+Tenant Lab 会签发仅用于本地演示的短期 JWT，通过 HTTP Middleware 路由请求，
+并允许直接挂载/卸载每个租户插件。生产环境应替换为身份服务和 JWKS 验签器。
+
 ### 安装 DSH Bundle
 
 在包发布到 npm 之前，可先构建自包含 tarball 并安装到 DSH Profile：

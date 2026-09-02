@@ -34,14 +34,16 @@ Latest v0.1 run (2026-09-02): `npm run verify` passed TypeScript compilation,
 - Added a PostgreSQL ownership provider with atomic claims and legacy migration.
 - Added generation-aware, no-fallback per-tenant MCP routing.
 - Added an executable HTTP/JWT composition example.
+- Added the visual Tenant Lab dashboard with local JWT issuing, protected API
+  routes, tenant plugin mount/unmount controls, and session claim demonstration.
 
 ## Latest verification
 
-2026-09-03: `npm run verify` passed strict TypeScript compilation, 27/27 Node
-tests including a real Cordis context, a Node crypto HS256 verifier integration,
-LLM client eviction/lifecycle, the real two-tenant LLM-routing demo, and the
-HTTP/JWT context demo. Dry run package audits passed for all five public packages
-without shipping tests.
+2026-09-03: `npm run verify` passed strict TypeScript compilation, 28/28 Node
+tests including the Tenant Lab HTTP smoke test, a real Cordis context, a Node
+crypto HS256 verifier integration, LLM client eviction/lifecycle, the real
+two-tenant LLM-routing demo, and the HTTP/JWT context demo. Dry run package
+audits passed for all five public packages without shipping tests.
 Run `./init.sh` to reproduce all checks from a clean checkout.
 
 GitNexus index: 484 nodes, 1,182 relationships, 35 clusters, and 23 flows

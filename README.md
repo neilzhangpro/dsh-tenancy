@@ -120,6 +120,18 @@ npm run demo
 The demo proves tenant tool isolation, credential routing, session ownership,
 legacy-plugin rejection, and HTTP/JWT context propagation in one command.
 
+### Run the visual Tenant Lab
+
+```bash
+npm run demo:dashboard
+# open http://localhost:4173
+```
+
+Tenant Lab signs short-lived local demo JWTs, routes requests through the HTTP
+middleware, and lets you mount/unmount each tenant plugin. It is for local
+demonstration only; replace its HS256 signer with an identity provider and JWKS
+verifier before production use.
+
 ### Install the DSH Bundle
 
 Until the package is published to npm, build a self-contained tarball and add it
