@@ -1,0 +1,22 @@
+{
+  "name": "@dsh-tenancy/core",
+  "version": "0.1.0",
+  "description": "Tenant scopes, plugin admission, and session ownership for DeepSeek Harness",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "files": [
+    "dist/errors.js", "dist/errors.d.ts",
+    "dist/id.js", "dist/id.d.ts",
+    "dist/index.js", "dist/index.d.ts",
+    "dist/plugin.js", "dist/plugin.d.ts",
+    "dist/runtime.js", "dist/runtime.d.ts",
+    "dist/scope.js", "dist/scope.d.ts",
+    "dist/sessions.js", "dist/sessions.d.ts",
+    "README.md"
+  ],
+  "scripts": { "build": "tsc -b", "test": "node --test dist/*.test.js" },
+  "engines": { "node": ">=20" }
+}

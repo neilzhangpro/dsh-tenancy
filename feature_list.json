@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "activeFeature": null,
+  "features": [
+    { "id": "v0.1-tenant-runtime", "status": "done", "evidence": "packages/core/src/runtime.test.ts" },
+    { "id": "v0.1-plugin-admission", "status": "done", "evidence": "packages/core/src/runtime.test.ts" },
+    { "id": "v0.1-session-ownership", "status": "done", "evidence": "packages/core/src/sessions.test.ts" },
+    { "id": "v0.1-compliance-kit", "status": "done", "evidence": "packages/testing/src/index.test.ts" },
+    { "id": "v0.1-demo-and-docs", "status": "done", "evidence": "examples/two-tenants-one-process/src/index.ts" }
+  ]
+}

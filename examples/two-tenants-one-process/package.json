@@ -1,0 +1,8 @@
+{
+  "name": "@dsh-tenancy/example-two-tenants",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": { "@dsh-tenancy/core": "0.1.0" },
+  "scripts": { "build": "tsc -b" }
+}
