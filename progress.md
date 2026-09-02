@@ -1,6 +1,6 @@
 # Progress
 
-Last Updated: 2026-09-02
+Last Updated: 2026-09-03
 
 ## Current Objective
 
@@ -37,15 +37,21 @@ Latest v0.1 run (2026-09-02): `npm run verify` passed TypeScript compilation,
 
 ## Latest verification
 
-2026-09-02: `npm run verify` passed strict TypeScript compilation, 21/21 Node
-tests, the real two-tenant LLM-routing demo, and the HTTP/JWT context demo. Dry
-run package audits passed for all five public packages without shipping tests.
+2026-09-03: `npm run verify` passed strict TypeScript compilation, 27/27 Node
+tests including a real Cordis context, a Node crypto HS256 verifier integration,
+LLM client eviction/lifecycle, the real two-tenant LLM-routing demo, and the
+HTTP/JWT context demo. Dry run package audits passed for all five public packages
+without shipping tests.
 Run `./init.sh` to reproduce all checks from a clean checkout.
+
+GitNexus index: 484 nodes, 1,182 relationships, 35 clusters, and 23 flows
+created with `npx gitnexus analyze`.
 
 ## Recommended Next Step
 
 Prepare a tagged v0.3.0 release or start the separately scoped v1.0 protocol
-stability work. There are no current blockers.
+stability work. The v1 compatibility policy is documented in
+`docs/v1-compatibility.md`; there are no current blockers.
 
 ## Documentation polish
 
@@ -62,7 +68,7 @@ stability work. There are no current blockers.
   removes both services and awaits every live tenant-owned effect.
 - The packed entry is self-contained and declares no registry-time runtime
   dependencies.
-- Verification: `npm run verify` passed 24/24 tests. A tarball was installed
+- Verification: `npm run verify` passed 27/27 tests. A tarball was installed
   into a fresh DSH profile using `@deepseek-ai/dsh@0.1.1-rc.2`; `--dump-config`
   showed the Bundle layer and a dependent observer printed
   `DSH_TENANCY_SMOKE_OK tenants tenantSessions smoke-tenant` after real boot.

@@ -56,10 +56,11 @@ export class MemoryTenantCredentialResolver implements TenantCredentialResolver 
 export interface TenantLlmCall<Client, Result> {
   readonly createClient: (profile: TenantLlmProfile, secret: string) => Client
   readonly execute: (client: Client, profile: TenantLlmProfile) => Promise<Result>
+  readonly disposeClient?: (client: Client) => void | Promise<void>
 }
 
 export class TenantLlmRouter<Client> {
-  #clients = new Map<string, Client>()
+  #clients = new Map<string, { client: Client; dispose?: (client: Client) => void | Promise<void> }>()
   constructor(
     private readonly profiles: TenantLlmResolver,
     private readonly credentials: TenantCredentialResolver,
@@ -69,15 +70,24 @@ export class TenantLlmRouter<Client> {
     const profile = await this.profiles.resolve(ctx.tenant)
     const secret = await this.credentials.resolve(profile.credentialRef, ctx.tenant)
     const key = [ctx.tenant.id, profile.provider, profile.model, profile.version, profile.credentialRef].join('\u0000')
-    let client = this.#clients.get(key)
-    if (!client) {
-      client = call.createClient(profile, secret)
-      this.#clients.set(key, client)
+    let entry = this.#clients.get(key)
+    if (!entry) {
+      entry = { client: call.createClient(profile, secret) }
+      if (call.disposeClient) entry.dispose = call.disposeClient
+      this.#clients.set(key, entry)
     }
-    return call.execute(client, profile)
+    return call.execute(entry!.client, profile)
   }
 
-  evictTenant(tenantId: TenantId): void {
-    for (const key of this.#clients.keys()) if (key.startsWith(`${tenantId}\u0000`)) this.#clients.delete(key)
+  async evictTenant(tenantId: TenantId): Promise<void> {
+    const evicted = [...this.#clients].filter(([key]) => key.startsWith(`${tenantId}\u0000`))
+    evicted.forEach(([key]) => this.#clients.delete(key))
+    const results = await Promise.allSettled(
+      evicted.map(([, entry]) => entry.dispose?.(entry.client)),
+    )
+    const failures = results
+      .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+      .map((result) => result.reason)
+    if (failures.length) throw new AggregateError(failures, `tenant ${tenantId} client cleanup failed`)
   }
 }

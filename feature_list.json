@@ -38,7 +38,7 @@
       "description": "Negative tests, executable demos, release package audits, and integration documentation",
       "dependencies": ["v0.3-integrations"],
       "status": "done",
-      "evidence": "npm run verify: 21/21 tests; docs/resource-contracts.md; docs/integrations.md"
+      "evidence": "npm run verify: 27/27 tests; docs/resource-contracts.md; docs/integrations.md; docs/v1-compatibility.md"
     },
     {
       "id": "docs-bilingual-readme",
@@ -54,7 +54,15 @@
       "description": "Self-contained dsh.bundle with Cordis services, lifecycle cleanup, and real profile installation smoke coverage",
       "dependencies": ["v0.3-integrations", "docs-bilingual-readme"],
       "status": "done",
-      "evidence": "packages/dsh-plugin-tenancy; DSH 0.1.1-rc.2 fresh-profile add/dump-config/boot smoke passed"
+      "evidence": "packages/dsh-plugin-tenancy; real @deepseek-ai/cordis Context integration test; DSH 0.1.1-rc.2 fresh-profile add/dump-config/boot smoke passed"
+    },
+    {
+      "id": "v1-compatibility-policy",
+      "name": "v1 protocol compatibility policy",
+      "description": "Semver and protocol compatibility rules for stable v1 runtimes, plugins, and adapters",
+      "dependencies": ["dsh-installable-bundle"],
+      "status": "done",
+      "evidence": "docs/v1-compatibility.md; packages/core/src/runtime.test.ts"
     }
   ]
 }
