@@ -13,18 +13,22 @@ Last Updated: 2026-09-02
 - Added LLM, credential, storage, HTTP, verified JWT, PostgreSQL, and MCP APIs.
 - Added memory adapters, negative tests, executable demos, and public docs.
 - Audited public npm package contents.
+- Added and smoke-tested the installable `dsh-plugin-tenancy` Bundle against
+  DSH 0.1.1-rc.2 in a fresh profile.
 
 ## Verification Evidence
 
 | Check | Command | Result | Notes |
 |---|---|---|---|
-| Full verification | `npm run verify` | Pass | strict build, 21/21 tests, two demos |
+| Full verification | `npm run verify` | Pass | strict build, 24/24 tests, two demos |
 | Package contents | `npm pack --dry-run` per package | Pass | runtime/types only; tests excluded |
+| DSH profile smoke | `dsh plugin add` + dump + observer boot | Pass | both Cordis services operational |
 | Patch hygiene | `git diff --check` | Pass | no whitespace errors |
 
 ## Files Changed
 
 - `packages/llm`, `packages/storage`, `packages/integrations`
+- `packages/dsh-plugin-tenancy` and reusable DSH smoke observer patch
 - `examples/http-jwt-middleware` and the upgraded two-tenant demo
 - README, security/protocol/integration docs, manifests, and harness state
 

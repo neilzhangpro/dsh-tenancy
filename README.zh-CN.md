@@ -11,7 +11,7 @@ Session 所有权和默认拒绝的插件准入机制。
 [![MIT 许可证](https://img.shields.io/badge/license-MIT-2563eb?style=flat-square)](LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=flat-square&logo=typescript&logoColor=white)](package.json)
-[![测试](https://img.shields.io/badge/tests-21%20passing-16a34a?style=flat-square)](progress.md)
+[![测试](https://img.shields.io/badge/tests-24%20passing-16a34a?style=flat-square)](progress.md)
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [协议](docs/tenancy-protocol.md) · [安全策略](SECURITY.md)
 
@@ -88,6 +88,7 @@ Agent registration → Tenant registration → Global registration
 | `@dsh-tenancy/llm` | 0.2.0 | LLM Profile、凭据引用、Secret 解析和 Client 路由 |
 | `@dsh-tenancy/storage` | 0.2.0 | 安全租户 Namespace 和内存参考实现 |
 | `@dsh-tenancy/integrations` | 0.3.0 | HTTP、已验证 JWT Claims、PostgreSQL 和 MCP |
+| `dsh-plugin-tenancy` | 0.3.0 | 提供 `ctx.tenants` 和 `ctx.tenantSessions` 的可安装 DSH Bundle |
 
 > 当前以 Monorepo 形式开发这些包。从公共 npm registry 引用前，请先检查
 > 仓库 Releases 中的发布状态。
@@ -116,6 +117,25 @@ npm run demo
 
 Demo 会在一条命令中展示租户工具隔离、凭据路由、Session 所有权、旧插件
 拒绝，以及 HTTP/JWT Tenant Context 传播。
+
+### 安装 DSH Bundle
+
+在包发布到 npm 之前，可先构建自包含 tarball 并安装到 DSH Profile：
+
+```bash
+npm run build
+npm pack --workspace dsh-plugin-tenancy
+dsh plugin --profile web add ./dsh-plugin-tenancy-0.3.0.tgz
+dsh --profile web --dump-config
+```
+
+该 Bundle 已在全新 `DSH_HOME` 中使用 `@deepseek-ai/dsh@0.1.1-rc.2`
+完成启动冒烟测试。编译入口已内联 core runtime，不包含需要从 registry
+下载的运行时依赖。卸载命令：
+
+```bash
+dsh plugin --profile web remove dsh-plugin-tenancy
+```
 
 ## 使用方式
 

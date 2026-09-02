@@ -6,6 +6,7 @@
     { "path": "packages/llm" },
     { "path": "packages/storage" },
     { "path": "packages/integrations" },
+    { "path": "packages/dsh-plugin-tenancy" },
     { "path": "examples/two-tenants-one-process" },
     { "path": "examples/http-jwt-middleware" }
   ]

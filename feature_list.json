@@ -47,6 +47,14 @@
       "dependencies": ["v0.3-verification-docs"],
       "status": "done",
       "evidence": "README.md; README.zh-CN.md; npm run verify"
+    },
+    {
+      "id": "dsh-installable-bundle",
+      "name": "Installable DSH tenancy Bundle",
+      "description": "Self-contained dsh.bundle with Cordis services, lifecycle cleanup, and real profile installation smoke coverage",
+      "dependencies": ["v0.3-integrations", "docs-bilingual-readme"],
+      "status": "done",
+      "evidence": "packages/dsh-plugin-tenancy; DSH 0.1.1-rc.2 fresh-profile add/dump-config/boot smoke passed"
     }
   ]
 }

@@ -53,3 +53,16 @@ stability work. There are no current blockers.
 - Added the aligned Simplified Chinese `README.zh-CN.md`.
 - Added truthful project/stack badges, architecture, package matrix, security
   boundary, developer workflow, roadmap, and contribution guidance.
+
+## Installable DSH Bundle
+
+- Added `packages/dsh-plugin-tenancy` with a valid `dsh.bundle` manifest and
+  `cordis.patch.yml` row.
+- The Cordis entry provides `ctx.tenants` and `ctx.tenantSessions`; teardown
+  removes both services and awaits every live tenant-owned effect.
+- The packed entry is self-contained and declares no registry-time runtime
+  dependencies.
+- Verification: `npm run verify` passed 24/24 tests. A tarball was installed
+  into a fresh DSH profile using `@deepseek-ai/dsh@0.1.1-rc.2`; `--dump-config`
+  showed the Bundle layer and a dependent observer printed
+  `DSH_TENANCY_SMOKE_OK tenants tenantSessions smoke-tenant` after real boot.

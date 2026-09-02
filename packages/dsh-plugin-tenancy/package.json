@@ -1,0 +1,56 @@
+{
+  "name": "dsh-plugin-tenancy",
+  "version": "0.3.0",
+  "description": "Tenant scopes, session ownership, and fail-closed plugin admission for DeepSeek Harness",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./smoke-observer": {
+      "types": "./dist/smoke-observer.d.ts",
+      "import": "./dist/smoke-observer.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts",
+    "dist/smoke-observer.js",
+    "dist/smoke-observer.d.ts",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -b && npm run bundle",
+    "bundle": "esbuild src/index.ts src/smoke-observer.ts --bundle --platform=node --format=esm --target=node20 --outdir=dist",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@dsh-tenancy/core": "0.1.0",
+    "esbuild": "^0.25.9"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh-plugin",
+    "cordis",
+    "multi-tenancy"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neilzhangpro/dsh-tenancy.git",
+    "directory": "packages/dsh-plugin-tenancy"
+  }
+}

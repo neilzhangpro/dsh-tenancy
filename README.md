@@ -11,7 +11,7 @@ resource routing, session ownership, and default-deny plugin admission.
 [![License: MIT](https://img.shields.io/badge/license-MIT-2563eb?style=flat-square)](LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=flat-square&logo=typescript&logoColor=white)](package.json)
-[![Tests](https://img.shields.io/badge/tests-21%20passing-16a34a?style=flat-square)](progress.md)
+[![Tests](https://img.shields.io/badge/tests-24%20passing-16a34a?style=flat-square)](progress.md)
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [Protocol](docs/tenancy-protocol.md) · [Security](SECURITY.md)
 
@@ -90,6 +90,7 @@ agent registration → tenant registration → global registration
 | `@dsh-tenancy/llm` | 0.2.0 | LLM profiles, credential references, secret resolution, and client routing |
 | `@dsh-tenancy/storage` | 0.2.0 | Safe tenant namespaces and an in-memory reference adapter |
 | `@dsh-tenancy/integrations` | 0.3.0 | HTTP, verified JWT claims, PostgreSQL ownership, and MCP routing |
+| `dsh-plugin-tenancy` | 0.3.0 | Installable DSH Bundle providing `ctx.tenants` and `ctx.tenantSessions` |
 
 > The packages are currently developed as a monorepo. Check the repository
 > releases before depending on a package from the public npm registry.
@@ -118,6 +119,26 @@ npm run demo
 
 The demo proves tenant tool isolation, credential routing, session ownership,
 legacy-plugin rejection, and HTTP/JWT context propagation in one command.
+
+### Install the DSH Bundle
+
+Until the package is published to npm, build a self-contained tarball and add it
+to a DSH profile:
+
+```bash
+npm run build
+npm pack --workspace dsh-plugin-tenancy
+dsh plugin --profile web add ./dsh-plugin-tenancy-0.3.0.tgz
+dsh --profile web --dump-config
+```
+
+The Bundle has been smoke-tested against `@deepseek-ai/dsh@0.1.1-rc.2` in a
+fresh `DSH_HOME`. Its compiled entry point includes the core runtime and has no
+registry-time runtime dependencies. To uninstall it:
+
+```bash
+dsh plugin --profile web remove dsh-plugin-tenancy
+```
 
 ## Usage
 

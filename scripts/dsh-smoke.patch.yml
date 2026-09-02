@@ -1,0 +1,6 @@
+- insert:
+    - id: dsh-tenancy-smoke-observer
+      name: dsh-plugin-tenancy/smoke-observer
+      inject:
+        - tenants
+        - tenantSessions

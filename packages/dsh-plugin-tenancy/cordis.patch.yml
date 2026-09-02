@@ -1,0 +1,3 @@
+- insert:
+    - id: dsh-tenancy
+      name: dsh-plugin-tenancy
