@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { createHmac, timingSafeEqual } from 'node:crypto'
 import { TenantRuntime, TenantSessionRegistry, createMemoryScopeAdapter } from '@dsh-tenancy/core'
 import {
   PostgresSessionOwnershipProvider, TenantMcpRouteNotFoundError, TenantMcpRouter,
@@ -22,6 +23,31 @@ test('JWT claim mapping requires verifier output and rejects missing claim', asy
   assert.equal(tenantIdFromVerifiedClaims(verified), 'acme')
   await assert.rejects(verifyJwtClaims('', async () => ({})), /must not be empty/)
   assert.throws(() => tenantIdFromVerifiedClaims(verified, 'organization_id'), /must be a string/)
+})
+
+test('JWT helper composes with a real HS256 verifier', async () => {
+  const secret = Buffer.from('integration-secret')
+  const encode = (value: unknown) => Buffer.from(JSON.stringify(value)).toString('base64url')
+  const header = encode({ alg: 'HS256', typ: 'JWT' })
+  const payload = encode({ tenant_id: 'acme', sub: 'user-1', exp: Math.floor(Date.now() / 1000) + 60 })
+  const signingInput = `${header}.${payload}`
+  const signature = createHmac('sha256', secret).update(signingInput).digest('base64url')
+  const token = `${signingInput}.${signature}`
+  const verifier = async (candidate: string) => {
+    const [rawHeader, rawPayload, rawSignature] = candidate.split('.')
+    if (!rawHeader || !rawPayload || !rawSignature) throw new Error('malformed JWT')
+    const parsedHeader = JSON.parse(Buffer.from(rawHeader, 'base64url').toString('utf8')) as { alg?: string; typ?: string }
+    if (parsedHeader.alg !== 'HS256' || parsedHeader.typ !== 'JWT') throw new Error('invalid JWT header')
+    const expected = createHmac('sha256', secret).update(`${rawHeader}.${rawPayload}`).digest()
+    const actual = Buffer.from(rawSignature, 'base64url')
+    if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) throw new Error('invalid JWT')
+    const claims = JSON.parse(Buffer.from(rawPayload, 'base64url').toString('utf8')) as Record<string, unknown>
+    if (claims.exp !== undefined && Number(claims.exp) <= Date.now() / 1000) throw new Error('invalid claims')
+    return claims
+  }
+  const verified = await verifyJwtClaims(token, verifier)
+  assert.equal(tenantIdFromVerifiedClaims(verified), 'acme')
+  await assert.rejects(verifyJwtClaims(`${token.slice(0, -1)}x`, verifier), /invalid JWT/)
 })
 
 test('MCP routes are tenant partitioned and have no global fallback', () => {

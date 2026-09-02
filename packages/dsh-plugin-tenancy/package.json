@@ -31,6 +31,7 @@
     "prepare": "npm run build"
   },
   "devDependencies": {
+    "@deepseek-ai/cordis": "4.0.1",
     "@dsh-tenancy/core": "0.1.0",
     "esbuild": "^0.25.9"
   },

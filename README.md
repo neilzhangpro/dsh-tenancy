@@ -227,6 +227,7 @@ or sandbox plugin code. Read the [threat model](docs/threat-model.md) and
 | [Resource contracts](docs/resource-contracts.md) | LLM, credential, and storage contracts |
 | [Integration guide](docs/integration-guide.md) | DSH/Cordis agent placement integration |
 | [v0.3 integrations](docs/integrations.md) | HTTP, JWT, PostgreSQL, and MCP adapters |
+| [v1 compatibility](docs/v1-compatibility.md) | Protocol and package compatibility policy |
 | [Plugin author guide](docs/plugin-author-guide.md) | How to write and test tenant-aware plugins |
 | [Threat model](docs/threat-model.md) | Guarantees, assumptions, and non-goals |
 | [Security policy](SECURITY.md) | Vulnerability reporting and security boundary |

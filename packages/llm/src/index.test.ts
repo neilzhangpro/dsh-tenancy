@@ -51,3 +51,21 @@ test('public profile and errors never expose raw secret material', async () => {
   const result = await router.call(tenant.ctx, { createClient: (_p, secret) => ({ secret }), execute: async (_c, profile) => JSON.stringify(profile) })
   assert.doesNotMatch(result, /DO-NOT-LOG/)
 })
+
+test('evicts tenant clients and awaits lifecycle cleanup', async () => {
+  const runtime = new TenantRuntime(createMemoryScopeAdapter()); const tenant = runtime.resolve('acme')
+  const profiles = new MemoryTenantLlmResolver(); const credentials = new MemoryTenantCredentialResolver()
+  const ref = CredentialRef('vault/acme'); profiles.set(tenant.id, { provider: 'fake', model: 'm', credentialRef: ref, version: '1' })
+  credentials.set(tenant.id, ref, 'secret')
+  const router = new TenantLlmRouter<{ id: number }>(profiles, credentials)
+  let created = 0; let disposed = 0
+  const call = {
+    createClient: () => ({ id: ++created }),
+    execute: async (client: { id: number }) => client.id,
+    disposeClient: async () => { await Promise.resolve(); disposed++ },
+  }
+  assert.equal(await router.call(tenant.ctx, call), 1)
+  await router.evictTenant(tenant.id)
+  assert.equal(disposed, 1)
+  assert.equal(await router.call(tenant.ctx, call), 2)
+})
