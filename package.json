@@ -8,7 +8,7 @@
   "packageManager": "npm@11.6.4",
   "workspaces": ["packages/*", "examples/*"],
   "scripts": {
-    "build": "tsc -b && npm run bundle --workspace dsh-plugin-tenancy",
+    "build": "tsc -b && npm run bundle --workspace dsh-plugin-tenancy && npm run build --workspace dsh-plugin-tenancy-suite",
     "check": "tsc -b --pretty false",
     "test": "npm run build && node --test packages/*/dist/*.test.js examples/tenant-dashboard/dist/*.test.js",
     "demo": "npm run build && node examples/two-tenants-one-process/dist/index.js && node examples/http-jwt-middleware/dist/index.js",
