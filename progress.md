@@ -46,3 +46,10 @@ Run `./init.sh` to reproduce all checks from a clean checkout.
 
 Prepare a tagged v0.3.0 release or start the separately scoped v1.0 protocol
 stability work. There are no current blockers.
+
+## Documentation polish
+
+- Rebuilt `README.md` as the English open-source landing page.
+- Added the aligned Simplified Chinese `README.zh-CN.md`.
+- Added truthful project/stack badges, architecture, package matrix, security
+  boundary, developer workflow, roadmap, and contribution guidance.

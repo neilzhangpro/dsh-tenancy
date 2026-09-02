@@ -39,6 +39,14 @@
       "dependencies": ["v0.3-integrations"],
       "status": "done",
       "evidence": "npm run verify: 21/21 tests; docs/resource-contracts.md; docs/integrations.md"
+    },
+    {
+      "id": "docs-bilingual-readme",
+      "name": "Polished bilingual project README",
+      "description": "Standard open-source landing documentation with language navigation, stack badges, architecture, usage, security, roadmap, and contribution guidance",
+      "dependencies": ["v0.3-verification-docs"],
+      "status": "done",
+      "evidence": "README.md; README.zh-CN.md; npm run verify"
     }
   ]
 }
