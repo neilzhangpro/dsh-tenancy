@@ -7,6 +7,7 @@ export interface TenantSummary { readonly id: string; readonly name: string; rea
 export interface TenantAgentUiService {
   listTenants(): readonly TenantSummary[]
   activeTenant(): string | undefined
+  switchTenant(tenantId: string): void
   create(tenantId: string): Promise<{ sessionId: string }>
   open(sessionId: string): void
 }
@@ -15,7 +16,7 @@ interface ClientContext {
   readonly layout: { toggleSidebar(): void }
   readonly get?: (name: string) => unknown
   readonly remote?: { $mount(contribution: unknown): Promise<() => Promise<void>> }
-  readonly sessions?: { refresh(): Promise<void>; open(sessionId: string): void }
+  readonly sessions?: { refresh(): Promise<void>; open(sessionId: string): void; clear(): void }
   effect<T>(effect: () => T, name?: string): T
 }
 interface ActionProps { readonly wide?: boolean; readonly ui?: TenantAgentUiService }
@@ -30,6 +31,16 @@ function selectTenant(id: string): void {
   if (id === currentTenant) return
   currentTenant = id
   for (const listener of tenantListeners) listener()
+}
+
+function TenantSwitcher({ ui }: { ui: TenantAgentUiService }): ReactElement {
+  const tenant = useSyncExternalStore(tenantStore.subscribe, tenantStore.getSnapshot, tenantStore.getSnapshot)
+  return createElement('select', {
+    'aria-label': 'Switch tenant',
+    value: tenant,
+    onChange: (event: { currentTarget: HTMLSelectElement }) => { ui.switchTenant(event.currentTarget.value) },
+    style: { width: '100%', boxSizing: 'border-box', background: '#17252b', color: '#e8edf2', border: '1px solid #36535a', borderRadius: 8, padding: 8, fontSize: 13 },
+  }, ui.listTenants().map(item => createElement('option', { key: item.id, value: item.id }, item.name)))
 }
 
 function TenantSessionBrowser({ wide, useSessions, sessions }: {
@@ -56,9 +67,11 @@ function TenantSessionBrowser({ wide, useSessions, sessions }: {
 function TenantNewAgentAction({ wide = true, ui }: ActionProps): ReactElement {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string>()
+  const activeTenant = useSyncExternalStore(tenantStore.subscribe, tenantStore.getSnapshot, tenantStore.getSnapshot)
   const tenants = ui?.listTenants() ?? []
-  const selected = ui?.activeTenant() ?? tenants[0]?.id ?? ''
+  const selected = ui?.activeTenant() ?? activeTenant ?? tenants[0]?.id ?? ''
   return createElement('div', { style: { position: 'relative' } },
+    ui && createElement(TenantSwitcher, { ui }),
     createElement('details', null,
       createElement('summary', { style: { listStyle: 'none' } }, createElement('span', { role: 'button', style: { border: '1px solid #36535a', background: '#102329', color: '#b9fff2', display: 'inline-block', padding: '8px 10px', cursor: ui ? 'pointer' : 'not-allowed', fontWeight: 700 } }, wide ? (ui ? '＋ New tenant agent' : 'Tenant service unavailable') : '＋')),
       ui && createElement('div', { style: { position: 'fixed', zIndex: 1000, inset: 0, display: 'grid', placeItems: 'center', padding: 24, boxSizing: 'border-box', background: '#0009' }, role: 'presentation' },
@@ -71,7 +84,7 @@ function TenantNewAgentAction({ wide = true, ui }: ActionProps): ReactElement {
             createElement('button', { type: 'button', 'aria-label': 'Close', onClick: (event: { currentTarget: HTMLElement }) => { event.currentTarget.closest('details')?.removeAttribute('open') }, style: { border: 0, background: 'transparent', color: '#91a5ab', fontSize: 20, lineHeight: 1, cursor: 'pointer', padding: 0 } }, '×'),
           ),
           createElement('label', { style: { display: 'grid', gap: 7, color: '#b9fff2', fontSize: 12, fontWeight: 700 } }, 'Tenant',
-            createElement('select', { defaultValue: selected, onChange: (event: { currentTarget: HTMLSelectElement }) => { selectTenant(event.currentTarget.value) }, style: { width: '100%', boxSizing: 'border-box', background: '#17252b', color: '#e8edf2', border: '1px solid #36535a', borderRadius: 8, padding: 10, fontSize: 14 } }, tenants.map((tenant) => createElement('option', { key: tenant.id, value: tenant.id }, tenant.name))),
+            createElement('select', { value: selected, onChange: (event: { currentTarget: HTMLSelectElement }) => { ui.switchTenant(event.currentTarget.value) }, style: { width: '100%', boxSizing: 'border-box', background: '#17252b', color: '#e8edf2', border: '1px solid #36535a', borderRadius: 8, padding: 10, fontSize: 14 } }, tenants.map((tenant) => createElement('option', { key: tenant.id, value: tenant.id }, tenant.name))),
           ),
           error && createElement('div', { role: 'alert', style: { color: '#ffb4ab', fontSize: 12 } }, error),
           createElement('button', { type: 'button', disabled: !selected || busy, onClick: async (event: { currentTarget: HTMLElement }) => {
@@ -101,7 +114,8 @@ export async function apply(ctx: ClientContext): Promise<() => Promise<void>> {
   const tenantRemote = ctx.get?.('remote.tenant') as { create(request: { tenantId: string }): Promise<{ ok: true; value: { sessionId: string } } | { ok: false; error: { message: string } }> } | undefined
   const ui: TenantAgentUiService | undefined = tenantRemote && ctx.sessions ? {
     listTenants: () => [{ id: 'acme', name: 'Acme', color: '#f5b84b' }, { id: 'globex', name: 'Globex', color: '#8de1d0' }],
-    activeTenant: () => 'acme',
+    activeTenant: () => currentTenant,
+    switchTenant: (tenantId) => { selectTenant(tenantId); ctx.sessions!.clear() },
     create: async (tenantId) => {
       const result = await tenantRemote.create({ tenantId })
       if (!result.ok) throw new Error(result.error.message)
