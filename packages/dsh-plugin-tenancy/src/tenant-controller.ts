@@ -10,7 +10,7 @@ export const TENANTS = Object.freeze([
 ])
 
 export class TenantController extends TypertRemoteService {
-  static inject = ['sessions', 'agents', 'tenants', 'tenantSessions', 'workspaceRegistry']
+  static inject = ['sessions', 'agents', 'agentPresets', 'tenants', 'tenantSessions', 'workspaceRegistry']
 
   constructor(ctx: Context) { super(ctx, 'tenantController', { namespace: 'tenant' }) }
 
@@ -25,12 +25,17 @@ export class TenantController extends TypertRemoteService {
     const ownership = this.ctx.get('tenantSessions') as TenancyPluginServices['tenantSessions']
     const sessionId = `tenant-${tenant.id}-${randomUUID()}`
     const tenantContext = services.resolve(TenantId(tenant.id)).ctx
-    const agents = this.ctx.get('agents') as { create(options: { sessionId: string; meta?: { cwd?: string; agentPreset?: string }; setup?: (ctx: { provide(name: string, value: unknown): () => void }) => void }): Promise<unknown> } | undefined
+    const agents = this.ctx.get('agents') as { create(options: { sessionId: string; meta?: { cwd?: string; agentPreset?: string }; setup?: (ctx: Context) => Promise<unknown> }): Promise<unknown> } | undefined
     if (agents) {
+      const agentPresets = this.ctx.get('agentPresets') as { mount(ctx: Context, id?: string): Promise<unknown> } | undefined
       const workspaces = this.ctx.get('workspaceRegistry') as { list(): readonly { path: string; attachSession?(id: string): Promise<void>; detachSession?(id: string): Promise<void> }[] } | undefined
       const workspace = workspaces?.list()[0]
       const cwd = workspace?.path
-      const handle = await agents.create({ sessionId, meta: { agentPreset: 'standard', ...(cwd === undefined ? {} : { cwd }) } }) as { dispose?: () => Promise<void> }
+      const handle = await agents.create({
+        sessionId,
+        meta: { agentPreset: 'standard', ...(cwd === undefined ? {} : { cwd }) },
+        ...(agentPresets ? { setup: async (agentContext: Context) => { await agentPresets.mount(agentContext, 'standard') } } : {}),
+      }) as { dispose?: () => Promise<void> }
       let attached = false
       try {
         await workspace?.attachSession?.(sessionId)
