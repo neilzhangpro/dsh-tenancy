@@ -15,7 +15,7 @@ interface ClientContext {
   readonly layout: { toggleSidebar(): void }
   readonly get?: (name: string) => unknown
   readonly remote?: { $mount(contribution: unknown): Promise<() => Promise<void>> }
-  readonly sessions?: { create(options: { sessionId: string }): Promise<string>; open(sessionId: string): void }
+  readonly sessions?: { refresh(): Promise<void>; open(sessionId: string): void }
   effect<T>(effect: () => T, name?: string): T
 }
 interface ActionProps { readonly wide?: boolean; readonly ui?: TenantAgentUiService }
@@ -54,7 +54,7 @@ export async function apply(ctx: ClientContext): Promise<() => Promise<void>> {
     create: async (tenantId) => {
       const result = await tenantRemote.create({ tenantId })
       if (!result.ok) throw new Error(result.error.message)
-      await ctx.sessions!.create({ sessionId: result.value.sessionId })
+      await ctx.sessions!.refresh()
       return result.value
     },
     open: (sessionId) => ctx.sessions!.open(sessionId),
