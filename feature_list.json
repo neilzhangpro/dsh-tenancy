@@ -57,12 +57,28 @@
       "evidence": "packages/dsh-plugin-tenancy; real @deepseek-ai/cordis Context integration test; DSH 0.1.1-rc.2 fresh-profile add/dump-config/boot smoke passed"
     },
     {
+      "id": "tenant-dashboard-demo",
+      "name": "Visual tenant dashboard demo",
+      "description": "Local JWT issuing, protected tenant API routes, visible scope/tool isolation, and mount/unmount lifecycle controls",
+      "dependencies": ["v0.3-integrations", "dsh-installable-bundle"],
+      "status": "done",
+      "evidence": "examples/tenant-dashboard; npm run demo:dashboard; dashboard HTTP smoke test"
+    },
+    {
       "id": "v1-compatibility-policy",
       "name": "v1 protocol compatibility policy",
       "description": "Semver and protocol compatibility rules for stable v1 runtimes, plugins, and adapters",
       "dependencies": ["dsh-installable-bundle"],
       "status": "done",
       "evidence": "docs/v1-compatibility.md; packages/core/src/runtime.test.ts"
+    },
+    {
+      "id": "dsh-agent-bridge",
+      "name": "Tenant-aware DSH Agent bridge",
+      "description": "Claims session ownership before DSH Agent creation and invokes tenant placement during unpublished Agent setup",
+      "dependencies": ["v0.3-integrations", "tenant-dashboard-demo"],
+      "status": "done",
+      "evidence": "packages/integrations/src/dsh-agent.ts; packages/integrations/src/dsh-agent.test.ts; docs/integration-guide.md"
     }
   ]
 }

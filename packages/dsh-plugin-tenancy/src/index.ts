@@ -7,11 +7,15 @@ import {
   type Tenant,
   type TenantId as TenantIdType,
 } from '@dsh-tenancy/core'
+import { TenantController } from './tenant-controller.js'
 
 export const name = 'dsh-tenancy'
 
+export { TenantController }
+
 export interface CordisContext {
   provide(name: string, value: unknown): void | (() => void)
+  plugin?(plugin: unknown): unknown
 }
 
 export interface DshTenancyService extends TenantRuntime {
@@ -65,6 +69,7 @@ export function apply(ctx: CordisContext): () => Promise<void> {
   const services = createServices()
   const removeTenants = ctx.provide('tenants', services.tenants)
   const removeSessions = ctx.provide('tenantSessions', services.tenantSessions)
+  ctx.plugin?.(TenantController)
 
   return async () => {
     if (typeof removeSessions === 'function') removeSessions()

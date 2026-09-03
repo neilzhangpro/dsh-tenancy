@@ -120,6 +120,18 @@ npm run demo
 The demo proves tenant tool isolation, credential routing, session ownership,
 legacy-plugin rejection, and HTTP/JWT context propagation in one command.
 
+### Run the visual Tenant Lab
+
+```bash
+npm run demo:dashboard
+# open http://localhost:4173
+```
+
+Tenant Lab signs short-lived local demo JWTs, routes requests through the HTTP
+middleware, and lets you mount/unmount each tenant plugin. It is for local
+demonstration only; replace its HS256 signer with an identity provider and JWKS
+verifier before production use.
+
 ### Install the DSH Bundle
 
 Until the package is published to npm, build a self-contained tarball and add it
@@ -225,7 +237,7 @@ or sandbox plugin code. Read the [threat model](docs/threat-model.md) and
 |---|---|
 | [Tenancy protocol](docs/tenancy-protocol.md) | Protocol v1 declarations and runtime invariants |
 | [Resource contracts](docs/resource-contracts.md) | LLM, credential, and storage contracts |
-| [Integration guide](docs/integration-guide.md) | DSH/Cordis agent placement integration |
+| [Integration guide](docs/integration-guide.md) | DSH/Cordis agent placement and Agent bridge |
 | [v0.3 integrations](docs/integrations.md) | HTTP, JWT, PostgreSQL, and MCP adapters |
 | [v1 compatibility](docs/v1-compatibility.md) | Protocol and package compatibility policy |
 | [Plugin author guide](docs/plugin-author-guide.md) | How to write and test tenant-aware plugins |

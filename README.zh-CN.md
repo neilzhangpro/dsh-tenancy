@@ -118,6 +118,16 @@ npm run demo
 Demo 会在一条命令中展示租户工具隔离、凭据路由、Session 所有权、旧插件
 拒绝，以及 HTTP/JWT Tenant Context 传播。
 
+### 运行可视化 Tenant Lab
+
+```bash
+npm run demo:dashboard
+# 打开 http://localhost:4173
+```
+
+Tenant Lab 会签发仅用于本地演示的短期 JWT，通过 HTTP Middleware 路由请求，
+并允许直接挂载/卸载每个租户插件。生产环境应替换为身份服务和 JWKS 验签器。
+
 ### 安装 DSH Bundle
 
 在包发布到 npm 之前，可先构建自包含 tarball 并安装到 DSH Profile：
@@ -220,7 +230,7 @@ dsh-tenancy 保护通过其契约完成的操作：
 |---|---|
 | [Tenancy 协议](docs/tenancy-protocol.md) | Protocol v1 声明和 Runtime 不变量 |
 | [资源契约](docs/resource-contracts.md) | LLM、Credential 和 Storage 契约 |
-| [集成指南](docs/integration-guide.md) | DSH/Cordis Agent placement 集成 |
+| [集成指南](docs/integration-guide.md) | DSH/Cordis Agent placement 和 Agent Bridge 集成 |
 | [v0.3 集成](docs/integrations.md) | HTTP、JWT、PostgreSQL 和 MCP Adapter |
 | [v1 兼容策略](docs/v1-compatibility.md) | 协议和包版本兼容策略 |
 | [插件开发指南](docs/plugin-author-guide.md) | 编写和测试 tenant-aware 插件 |

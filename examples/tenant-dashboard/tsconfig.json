@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", "module": "NodeNext", "moduleResolution": "NodeNext",
+    "strict": true, "composite": true, "rootDir": "src", "outDir": "dist"
+  },
+  "references": [
+    { "path": "../../packages/core" },
+    { "path": "../../packages/integrations" },
+    { "path": "../../packages/dsh-plugin-tenancy" }
+  ],
+  "include": ["src/**/*.ts"]
+}
