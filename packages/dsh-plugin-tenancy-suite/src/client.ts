@@ -1,6 +1,6 @@
 import { createElement, useEffect, useState, type ReactElement } from 'react'
 
-export const inject = ['slots', 'layout', 'locale', 'tenantAgentUi']
+export const inject = ['slots', 'layout', 'locale']
 
 export interface TenantSummary { readonly id: string; readonly name: string; readonly color?: string }
 export interface TenantAgentUiService {
@@ -12,27 +12,28 @@ export interface TenantAgentUiService {
 interface ClientContext {
   readonly slots: { inject(name: string, callback: () => unknown): void; register(spec: Record<string, unknown>, component: unknown): unknown }
   readonly layout: { toggleSidebar(): void }
-  readonly tenantAgentUi: TenantAgentUiService
+  readonly tenantAgentUi?: TenantAgentUiService
+  readonly get?: (name: string) => unknown
   effect<T>(effect: () => T, name?: string): T
 }
-interface ActionProps { readonly wide?: boolean; readonly ui: TenantAgentUiService }
+interface ActionProps { readonly wide?: boolean; readonly ui?: TenantAgentUiService }
 
 function TenantNewAgentAction({ wide = true, ui }: ActionProps): ReactElement {
-  const tenants = ui.listTenants()
+  const tenants = ui?.listTenants() ?? []
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string>()
-  const [selected, setSelected] = useState(ui.activeTenant() ?? tenants[0]?.id ?? '')
+  const [selected, setSelected] = useState(ui?.activeTenant() ?? tenants[0]?.id ?? '')
   useEffect(() => { if (!selected && tenants[0]) setSelected(tenants[0].id) }, [selected, tenants])
   async function create(): Promise<void> {
-    if (!selected) return
+    if (!ui || !selected) return
     setBusy(true); setError(undefined)
-    try { ui.open((await ui.create(selected)).sessionId); setOpen(false) }
+    try { ui?.open((await ui.create(selected)).sessionId); setOpen(false) }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'agent creation failed') }
     finally { setBusy(false) }
   }
   return createElement('div', { style: { position: 'relative' } },
-    createElement('button', { type: 'button', 'aria-expanded': open, onClick: () => setOpen(!open), style: { border: '1px solid #36535a', background: '#102329', color: '#b9fff2', padding: '8px 10px', cursor: 'pointer', fontWeight: 700 } }, wide ? '＋ New tenant agent' : '＋'),
+    createElement('button', { type: 'button', disabled: !ui, 'aria-expanded': open, onClick: () => setOpen(!open), style: { border: '1px solid #36535a', background: '#102329', color: '#b9fff2', padding: '8px 10px', cursor: ui ? 'pointer' : 'not-allowed', fontWeight: 700 } }, wide ? (ui ? '＋ New tenant agent' : 'Tenant service unavailable') : '＋'),
     open && createElement('div', { style: { position: 'absolute', zIndex: 10, bottom: 'calc(100% + 8px)', right: 0, width: 230, padding: 14, display: 'grid', gap: 10, background: '#0d171c', border: '1px solid #36535a', boxShadow: '0 14px 35px #0008' }, role: 'dialog', 'aria-label': 'Choose tenant' },
       createElement('strong', null, 'Choose tenant'),
       createElement('select', { value: selected, onChange: (event: { target: { value: string } }) => setSelected(event.target.value), style: { background: '#17252b', color: '#e8edf2', border: '1px solid #36535a', padding: 8 } }, tenants.map((tenant) => createElement('option', { key: tenant.id, value: tenant.id }, tenant.name))),
@@ -52,18 +53,18 @@ export function apply(ctx: ClientContext): void {
       'sidebar.settings': { kind: 'single', scope: 'root' },
       'sidebar.footer.action': { kind: 'list', scope: 'root' },
     },
-    inject: () => ({ toggleSidebar: () => ctx.layout.toggleSidebar(), ui: ctx.tenantAgentUi }),
+    inject: () => ({ toggleSidebar: () => ctx.layout.toggleSidebar(), ui: ctx.tenantAgentUi ?? ctx.get?.('tenantAgentUi') as TenantAgentUiService | undefined }),
   }, TenantSidebar), 'dsh-tenancy-suite: sidebar')
 }
 
 function TenantSidebar({ collapsed = false, width = 280, renderSlot = () => null, toggleSidebar = () => undefined, ui }: {
   readonly collapsed?: boolean; readonly width?: number
   readonly renderSlot?: (name: string, owner?: unknown) => unknown
-  readonly toggleSidebar?: () => void; readonly ui: TenantAgentUiService
+  readonly toggleSidebar?: () => void; readonly ui?: TenantAgentUiService
 }): ReactElement {
   const wide = !collapsed
   const create = () => {
-    const tenant = ui.activeTenant() ?? ui.listTenants()[0]?.id
+    const tenant = ui?.activeTenant() ?? ui?.listTenants()[0]?.id
     if (tenant) void ui.create(tenant).then(({ sessionId }) => ui.open(sessionId))
   }
   return createElement('aside', { style: { width: wide ? width : 56, height: '100%', display: 'flex', flexDirection: 'column', background: '#0b1217', color: '#e8edf2', borderRight: '1px solid #26323d', overflow: 'hidden', transition: 'width 150ms ease' } },

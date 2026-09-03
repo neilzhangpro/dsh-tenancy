@@ -5,6 +5,13 @@
 调用后端的 `tenantAgents.create`，最后打开返回的 session。官方的 workspace、
 settings、footer 子 slot 仍由原插件提供。
 
+本地 tarball 安装：
+
+```bash
+dsh plugin --profile web add ./dsh-plugin-tenancy-0.3.0.tgz
+dsh plugin --profile web add ./dsh-plugin-tenancy-suite-0.3.0.tgz
+```
+
 宿主提供浏览器侧 `tenantAgentUi` service：
 
 ```ts

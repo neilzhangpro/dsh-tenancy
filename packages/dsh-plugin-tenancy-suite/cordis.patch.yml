@@ -1,7 +1,5 @@
+- id: ui-sidebar
+  disabled: true
 - insert:
-    - id: dsh-tenancy
-      name: dsh-plugin-tenancy
-    - id: ui-sidebar
-      disabled: true
     - id: ui-tenant-sidebar
       name: dsh-plugin-tenancy-suite
