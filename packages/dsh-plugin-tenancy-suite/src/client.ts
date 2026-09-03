@@ -15,7 +15,7 @@ interface ClientContext {
   readonly layout: { toggleSidebar(): void }
   readonly get?: (name: string) => unknown
   readonly remote?: { $mount(contribution: unknown): Promise<() => Promise<void>>; tenant?: { create(request: { tenantId: string }): Promise<{ sessionId: string }> } }
-  readonly sessions?: { open(sessionId: string): void }
+  readonly sessions?: { create(options: { sessionId: string }): Promise<string>; open(sessionId: string): void }
   effect<T>(effect: () => T, name?: string): T
 }
 interface ActionProps { readonly wide?: boolean; readonly ui?: TenantAgentUiService }
@@ -51,7 +51,11 @@ export async function apply(ctx: ClientContext): Promise<() => Promise<void>> {
   const ui: TenantAgentUiService | undefined = tenantRemote && ctx.sessions ? {
     listTenants: () => [{ id: 'acme', name: 'Acme', color: '#f5b84b' }, { id: 'globex', name: 'Globex', color: '#8de1d0' }],
     activeTenant: () => 'acme',
-    create: (tenantId) => tenantRemote.create({ tenantId }),
+    create: async (tenantId) => {
+      const result = await tenantRemote.create({ tenantId })
+      await ctx.sessions!.create({ sessionId: result.sessionId })
+      return result
+    },
     open: (sessionId) => ctx.sessions!.open(sessionId),
   } : undefined
   ctx.slots.inject('sidebar.footer.action', () => {
