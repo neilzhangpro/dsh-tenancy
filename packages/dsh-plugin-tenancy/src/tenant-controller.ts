@@ -23,11 +23,21 @@ export class TenantController extends TypertRemoteService {
     if (!tenant) throw new Error('unknown tenant')
     const services = this.ctx.get('tenants') as DshTenancyService
     const ownership = this.ctx.get('tenantSessions') as TenancyPluginServices['tenantSessions']
-    const session = (this.ctx.get('sessions') as { create(id?: string): { header: { id: string } } }).create(`tenant-${tenant.id}-${randomUUID()}`)
+    const sessionId = `tenant-${tenant.id}-${randomUUID()}`
     const tenantContext = services.resolve(TenantId(tenant.id)).ctx
+    const agents = this.ctx.get('agents') as { create(options: { sessionId: string; setup?: (ctx: { provide(name: string, value: unknown): () => void }) => void }): Promise<unknown> } | undefined
+    if (agents) {
+      const handle = await agents.create({ sessionId, setup: (agentCtx) => { agentCtx.provide('dshTenancyTenant', tenantContext.tenant) } }) as { dispose?: () => Promise<void> }
+      try {
+        await ownership.claim(tenantContext, sessionId)
+      } catch (error) {
+        await handle.dispose?.()
+        throw error
+      }
+      return { sessionId }
+    }
+    const session = (this.ctx.get('sessions') as { create(id?: string): { header: { id: string } } }).create(sessionId)
     await ownership.claim(tenantContext, session.header.id)
-    const agents = this.ctx.get('agents') as { create(options: { sessionId: string; setup?: (ctx: Record<string, unknown>) => void }): Promise<unknown> } | undefined
-    if (agents) await agents.create({ sessionId: session.header.id, setup: (agentCtx) => { agentCtx.tenant = tenantContext.tenant } })
     return { sessionId: session.header.id }
   }
 }
