@@ -1,4 +1,4 @@
-import { createElement, useState, type ReactElement } from 'react'
+import { createElement, useState, useSyncExternalStore, type ReactElement } from 'react'
 import tenancyRemoteContribution from 'dsh-plugin-tenancy/remote'
 
 export const inject = ['slots', 'layout', 'locale', 'remote', 'sessions']
@@ -20,6 +20,39 @@ interface ClientContext {
 }
 interface ActionProps { readonly wide?: boolean; readonly ui?: TenantAgentUiService }
 
+let currentTenant = 'acme'
+const tenantListeners = new Set<() => void>()
+const tenantStore = {
+  getSnapshot: () => currentTenant,
+  subscribe: (listener: () => void) => { tenantListeners.add(listener); return () => tenantListeners.delete(listener) },
+}
+function selectTenant(id: string): void {
+  if (id === currentTenant) return
+  currentTenant = id
+  for (const listener of tenantListeners) listener()
+}
+
+function TenantSessionBrowser({ wide, useSessions, sessions }: {
+  wide: boolean
+  useSessions: (selector: (state: { ids: readonly string[]; byId: Record<string, { title?: string; name?: string }> }) => unknown) => unknown
+  sessions: { open(sessionId: string): void }
+}): ReactElement {
+  const tenant = useSyncExternalStore(tenantStore.subscribe, tenantStore.getSnapshot, tenantStore.getSnapshot)
+  const list = useSessions(state => state) as { ids: readonly string[]; byId: Record<string, { title?: string; name?: string }> }
+  const ids = list.ids.filter(id => id.startsWith(`tenant-${tenant}-`))
+  return createElement('section', { style: { display: 'grid', gap: 8, padding: wide ? '14px 12px' : 8, overflow: 'auto' } },
+    createElement('div', { style: { color: '#91a5ab', fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' } }, `${tenant} sessions`),
+    ids.length === 0
+      ? createElement('div', { style: { color: '#91a5ab', fontSize: 13, padding: '12px 0' } }, 'No sessions for this tenant yet.')
+      : ids.map(id => createElement('button', {
+        key: id,
+        type: 'button',
+        onClick: () => sessions.open(id),
+        style: { textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', border: 0, borderRadius: 8, padding: '9px 10px', background: list.byId[id]?.title ? '#17252b' : 'transparent', color: '#e8edf2', cursor: 'pointer' },
+      }, list.byId[id]?.title ?? list.byId[id]?.name ?? id)),
+  )
+}
+
 function TenantNewAgentAction({ wide = true, ui }: ActionProps): ReactElement {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string>()
@@ -38,7 +71,7 @@ function TenantNewAgentAction({ wide = true, ui }: ActionProps): ReactElement {
             createElement('button', { type: 'button', 'aria-label': 'Close', onClick: (event: { currentTarget: HTMLElement }) => { event.currentTarget.closest('details')?.removeAttribute('open') }, style: { border: 0, background: 'transparent', color: '#91a5ab', fontSize: 20, lineHeight: 1, cursor: 'pointer', padding: 0 } }, '×'),
           ),
           createElement('label', { style: { display: 'grid', gap: 7, color: '#b9fff2', fontSize: 12, fontWeight: 700 } }, 'Tenant',
-            createElement('select', { defaultValue: selected, style: { width: '100%', boxSizing: 'border-box', background: '#17252b', color: '#e8edf2', border: '1px solid #36535a', borderRadius: 8, padding: 10, fontSize: 14 } }, tenants.map((tenant) => createElement('option', { key: tenant.id, value: tenant.id }, tenant.name))),
+            createElement('select', { defaultValue: selected, onChange: (event: { currentTarget: HTMLSelectElement }) => { selectTenant(event.currentTarget.value) }, style: { width: '100%', boxSizing: 'border-box', background: '#17252b', color: '#e8edf2', border: '1px solid #36535a', borderRadius: 8, padding: 10, fontSize: 14 } }, tenants.map((tenant) => createElement('option', { key: tenant.id, value: tenant.id }, tenant.name))),
           ),
           error && createElement('div', { role: 'alert', style: { color: '#ffb4ab', fontSize: 12 } }, error),
           createElement('button', { type: 'button', disabled: !selected || busy, onClick: async (event: { currentTarget: HTMLElement }) => {
@@ -83,5 +116,9 @@ export async function apply(ctx: ClientContext): Promise<() => Promise<void>> {
       ({ wide }: { wide?: boolean }) => createElement(TenantNewAgentAction, { wide, ui: ui ?? ctx.get?.('tenantAgentUi') as TenantAgentUiService | undefined }),
     )
   })
+  ctx.slots.inject('sidebar.workspaces', () => ctx.slots.register(
+    { name: 'sidebar.workspaces', id: 'dsh-tenancy-sessions', priority: -100, inject: () => ({ sessions: ctx.sessions }) },
+    TenantSessionBrowser,
+  ))
   return async () => { if (disposeRemote) await disposeRemote() }
 }
