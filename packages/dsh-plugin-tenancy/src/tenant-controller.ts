@@ -27,7 +27,7 @@ export class TenantController extends TypertRemoteService {
     const tenantContext = services.resolve(TenantId(tenant.id)).ctx
     const agents = this.ctx.get('agents') as { create(options: { sessionId: string; setup?: (ctx: { provide(name: string, value: unknown): () => void }) => void }): Promise<unknown> } | undefined
     if (agents) {
-      const handle = await agents.create({ sessionId, setup: (agentCtx) => { agentCtx.provide('dshTenancyTenant', tenantContext.tenant) } }) as { dispose?: () => Promise<void> }
+      const handle = await agents.create({ sessionId }) as { dispose?: () => Promise<void> }
       try {
         await ownership.claim(tenantContext, sessionId)
       } catch (error) {
