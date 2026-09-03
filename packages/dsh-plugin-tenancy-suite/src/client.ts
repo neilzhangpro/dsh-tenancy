@@ -111,6 +111,11 @@ function TenantNewAgentAction({ wide = true, ui }: ActionProps): ReactElement {
 }
 
 export async function apply(ctx: ClientContext): Promise<() => Promise<void>> {
+  const officialNewSessionStyle = typeof document === 'undefined' ? undefined : document.createElement('style')
+  if (officialNewSessionStyle) {
+    officialNewSessionStyle.textContent = 'button[aria-label="New session"],button[aria-label="新建会话"]{display:none!important}'
+    document.head.append(officialNewSessionStyle)
+  }
   const disposeRemote = await ctx.remote?.$mount(tenancyRemoteContribution)
   const tenantRemote = ctx.get?.('remote.tenant') as { create(request: { tenantId: string }): Promise<{ ok: true; value: { sessionId: string } } | { ok: false; error: { message: string } }> } | undefined
   const ui: TenantAgentUiService | undefined = tenantRemote && ctx.sessions ? {
@@ -135,5 +140,8 @@ export async function apply(ctx: ClientContext): Promise<() => Promise<void>> {
     { name: 'sidebar.workspaces', id: 'dsh-tenancy-sessions', priority: -100, inject: () => ({ open: (sessionId: string) => ctx.sessions!.open(sessionId) }) },
     TenantSessionBrowser,
   ))
-  return async () => { if (disposeRemote) await disposeRemote() }
+  return async () => {
+    officialNewSessionStyle?.remove()
+    if (disposeRemote) await disposeRemote()
+  }
 }
