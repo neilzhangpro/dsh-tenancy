@@ -1,4 +1,5 @@
 import { Context } from '@deepseek-ai/cordis'
+import { randomUUID } from 'node:crypto'
 import { Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
 import { TenantId } from '@dsh-tenancy/core'
 import type { DshTenancyService, TenancyPluginServices } from './index.js'
@@ -22,7 +23,7 @@ export class TenantController extends TypertRemoteService {
     if (!tenant) throw new Error('unknown tenant')
     const services = this.ctx.get('tenants') as DshTenancyService
     const ownership = this.ctx.get('tenantSessions') as TenancyPluginServices['tenantSessions']
-    const session = (this.ctx.get('sessions') as { create(): { header: { id: string } } }).create()
+    const session = (this.ctx.get('sessions') as { create(id?: string): { header: { id: string } } }).create(`tenant-${tenant.id}-${randomUUID()}`)
     const tenantContext = services.resolve(TenantId(tenant.id)).ctx
     await ownership.claim(tenantContext, session.header.id)
     const agents = this.ctx.get('agents') as { create(options: { sessionId: string; setup?: (ctx: Record<string, unknown>) => void }): Promise<unknown> } | undefined
