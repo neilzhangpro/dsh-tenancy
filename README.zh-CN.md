@@ -147,6 +147,17 @@ dsh --profile web --dump-config
 dsh plugin --profile web remove dsh-plugin-tenancy
 ```
 
+### 运行 DSH 多租户 Sidebar 示例
+
+UI companion 包会增加租户切换器、租户内的新会话按钮，以及按当前租户过滤的
+Session 列表。它使用 DSH 官方 Sidebar slots 和 `tenantAgents.create` 服务，
+不修改 DSH 源码。
+
+完整的独立 Profile 安装和启动命令见
+[DSH Sidebar 集成示例](docs/integration-guide.md#dsh-multi-tenant-sidebar-example)。
+该示例会同时安装 `dsh-plugin-tenancy`、`dsh-plugin-tenancy-suite` 和官方
+`@deepseek-ai/dsh-web-app`，启动后打开 `http://127.0.0.1:4174/`。
+
 ## 使用方式
 
 ### 创建并进入 Tenant Scope

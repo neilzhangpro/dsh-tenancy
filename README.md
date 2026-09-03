@@ -152,6 +152,17 @@ registry-time runtime dependencies. To uninstall it:
 dsh plugin --profile web remove dsh-plugin-tenancy
 ```
 
+### Run the DSH multi-tenant Sidebar example
+
+The UI companion package adds a tenant switcher, a tenant-scoped `New session`
+button, and a session list filtered to the active tenant. It uses DSH's official
+Sidebar slots and the `tenantAgents.create` service; DSH source is unchanged.
+
+See the [DSH Sidebar integration example](docs/integration-guide.md#dsh-multi-tenant-sidebar-example)
+for the isolated-profile commands that install `dsh-plugin-tenancy`,
+`dsh-plugin-tenancy-suite`, and the official `@deepseek-ai/dsh-web-app` bundle,
+then start the UI at `http://127.0.0.1:4174/`.
+
 ## Usage
 
 ### Create and enter tenant scope
