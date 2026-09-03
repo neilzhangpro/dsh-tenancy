@@ -43,22 +43,23 @@ function TenantSwitcher({ ui }: { ui: TenantAgentUiService }): ReactElement {
   }, ui.listTenants().map(item => createElement('option', { key: item.id, value: item.id }, item.name)))
 }
 
-function TenantSessionBrowser({ wide, useSessions, sessions }: {
+function TenantSessionBrowser({ wide, useSessions, open }: {
   wide: boolean
-  useSessions: (selector: (state: { ids: readonly string[]; byId: Record<string, { title?: string; name?: string }> }) => unknown) => unknown
-  sessions: { open(sessionId: string): void }
+  useSessions: (selector: (state: { ids: readonly string[]; byId: Record<string, { title?: string; name?: string; cwd?: string }> }) => unknown) => unknown
+  open(sessionId: string): void
 }): ReactElement {
   const tenant = useSyncExternalStore(tenantStore.subscribe, tenantStore.getSnapshot, tenantStore.getSnapshot)
-  const list = useSessions(state => state) as { ids: readonly string[]; byId: Record<string, { title?: string; name?: string }> }
-  const ids = list.ids.filter(id => id.startsWith(`tenant-${tenant}-`))
+  const list = useSessions(state => state) as { ids: readonly string[]; byId: Record<string, { title?: string; name?: string; cwd?: string }> }
+  const tenantIds = list.ids.filter(id => id.startsWith(`tenant-${tenant}-`))
+  const ids = tenantIds.filter(id => list.byId[id]?.cwd !== undefined)
   return createElement('section', { style: { display: 'grid', gap: 8, padding: wide ? '14px 12px' : 8, overflow: 'auto' } },
     createElement('div', { style: { color: '#91a5ab', fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' } }, `${tenant} sessions`),
     ids.length === 0
-      ? createElement('div', { style: { color: '#91a5ab', fontSize: 13, padding: '12px 0' } }, 'No sessions for this tenant yet.')
+      ? createElement('div', { style: { color: '#91a5ab', fontSize: 13, padding: '12px 0' } }, tenantIds.length > 0 ? 'Older sessions need a workspace. Create a new agent.' : 'No sessions for this tenant yet.')
       : ids.map(id => createElement('button', {
         key: id,
         type: 'button',
-        onClick: () => sessions.open(id),
+        onClick: () => open(id),
         style: { textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', border: 0, borderRadius: 8, padding: '9px 10px', background: list.byId[id]?.title ? '#17252b' : 'transparent', color: '#e8edf2', cursor: 'pointer' },
       }, list.byId[id]?.title ?? list.byId[id]?.name ?? id)),
   )
@@ -131,7 +132,7 @@ export async function apply(ctx: ClientContext): Promise<() => Promise<void>> {
     )
   })
   ctx.slots.inject('sidebar.workspaces', () => ctx.slots.register(
-    { name: 'sidebar.workspaces', id: 'dsh-tenancy-sessions', priority: -100, inject: () => ({ sessions: ctx.sessions }) },
+    { name: 'sidebar.workspaces', id: 'dsh-tenancy-sessions', priority: -100, inject: () => ({ open: (sessionId: string) => ctx.sessions!.open(sessionId) }) },
     TenantSessionBrowser,
   ))
   return async () => { if (disposeRemote) await disposeRemote() }
