@@ -1,7 +1,7 @@
 # dsh-plugin-tenancy-suite
 
-按 DSH 官方 UI 插件方式实现的多租户 Sidebar：Bundle 层禁用官方 `ui-sidebar`，
-再注册同一份 `sidebar` shell；创建流程先选租户，再由 `tenantAgentUi.create()`
+按 DSH 官方 UI 插件方式实现的多租户 Sidebar 扩展：保留官方 `ui-sidebar`，
+向 `sidebar.footer.action` 注入租户入口；创建流程先选租户，再由 `tenantAgentUi.create()`
 调用后端的 `tenantAgents.create`，最后打开返回的 session。官方的 workspace、
 settings、footer 子 slot 仍由原插件提供。
 

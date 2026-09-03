@@ -44,36 +44,11 @@ function TenantNewAgentAction({ wide = true, ui }: ActionProps): ReactElement {
 }
 
 export function apply(ctx: ClientContext): void {
-  ctx.effect(() => ctx.slots.register({
-    name: 'sidebar',
-    children: {
-      'sidebar.brand.mark': { kind: 'single', scope: 'root' },
-      'sidebar.brand.name': { kind: 'single', scope: 'root' },
-      'sidebar.workspaces': { kind: 'single', scope: 'root' },
-      'sidebar.settings': { kind: 'single', scope: 'root' },
-      'sidebar.footer.action': { kind: 'list', scope: 'root' },
-    },
-    inject: () => ({ toggleSidebar: () => ctx.layout.toggleSidebar(), ui: ctx.tenantAgentUi ?? ctx.get?.('tenantAgentUi') as TenantAgentUiService | undefined }),
-  }, TenantSidebar), 'dsh-tenancy-suite: sidebar')
-}
-
-function TenantSidebar({ collapsed = false, width = 280, renderSlot = () => null, toggleSidebar = () => undefined, ui }: {
-  readonly collapsed?: boolean; readonly width?: number
-  readonly renderSlot?: (name: string, owner?: unknown) => unknown
-  readonly toggleSidebar?: () => void; readonly ui?: TenantAgentUiService
-}): ReactElement {
-  const wide = !collapsed
-  const create = () => {
-    const tenant = ui?.activeTenant() ?? ui?.listTenants()[0]?.id
-    if (tenant) void ui.create(tenant).then(({ sessionId }) => ui.open(sessionId))
-  }
-  return createElement('aside', { style: { width: wide ? width : 56, height: '100%', display: 'flex', flexDirection: 'column', background: '#0b1217', color: '#e8edf2', borderRight: '1px solid #26323d', overflow: 'hidden', transition: 'width 150ms ease' } },
-    createElement('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 14, borderBottom: '1px solid #26323d' } },
-      wide && createElement('button', { type: 'button', onClick: create, style: { border: 0, background: 'transparent', color: '#f5b84b', fontWeight: 800, fontSize: 16, cursor: 'pointer' } }, 'Tenant Lab'),
-      createElement('button', { type: 'button', onClick: toggleSidebar, 'aria-label': wide ? 'Collapse sidebar' : 'Open sidebar', style: { border: 0, background: 'transparent', color: '#84909d', fontSize: 18, cursor: 'pointer' } }, wide ? '‹' : '›')
-    ),
-    createElement('div', { style: { padding: wide ? '12px 14px' : '12px 8px', borderBottom: '1px solid #26323d' } }, createElement(TenantNewAgentAction, { wide, ui })),
-    createElement('div', { style: { minHeight: 0, flex: 1, overflow: 'auto' } }, renderSlot('sidebar.workspaces', { wide, expandSidebar: () => { if (collapsed) toggleSidebar() } })),
-    createElement('div', { style: { borderTop: '1px solid #26323d', padding: wide ? 10 : 6 } }, renderSlot('sidebar.footer.action', { wide }), renderSlot('sidebar.settings', { wide }))
-  )
+  ctx.slots.inject('sidebar.footer.action', () => ctx.slots.register(
+    { name: 'tenant-agent', id: 'dsh-tenancy-suite', order: 100 },
+    (props: { readonly wide?: boolean }) => createElement(TenantNewAgentAction, {
+      wide: props.wide,
+      ui: ctx.tenantAgentUi ?? ctx.get?.('tenantAgentUi') as TenantAgentUiService | undefined,
+    }),
+  ))
 }
