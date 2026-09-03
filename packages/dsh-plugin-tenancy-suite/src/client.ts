@@ -1,6 +1,6 @@
 import { createElement, useEffect, useState, type ReactElement } from 'react'
 
-export const inject = ['slots', 'tenantAgentUi']
+export const inject = ['slots', 'layout', 'locale', 'tenantAgentUi']
 
 export interface TenantSummary { readonly id: string; readonly name: string; readonly color?: string }
 export interface TenantAgentUiService {
@@ -13,6 +13,7 @@ interface ClientContext {
   readonly slots: { inject(name: string, callback: () => unknown): void; register(spec: Record<string, unknown>, component: unknown): unknown }
   readonly layout: { toggleSidebar(): void }
   readonly tenantAgentUi: TenantAgentUiService
+  effect<T>(effect: () => T, name?: string): T
 }
 interface ActionProps { readonly wide?: boolean; readonly ui: TenantAgentUiService }
 
@@ -42,7 +43,7 @@ function TenantNewAgentAction({ wide = true, ui }: ActionProps): ReactElement {
 }
 
 export function apply(ctx: ClientContext): void {
-  ctx.slots.inject('root', () => ctx.slots.register({
+  ctx.effect(() => ctx.slots.register({
     name: 'sidebar',
     children: {
       'sidebar.brand.mark': { kind: 'single', scope: 'root' },
@@ -52,7 +53,7 @@ export function apply(ctx: ClientContext): void {
       'sidebar.footer.action': { kind: 'list', scope: 'root' },
     },
     inject: () => ({ toggleSidebar: () => ctx.layout.toggleSidebar(), ui: ctx.tenantAgentUi }),
-  }, TenantSidebar))
+  }, TenantSidebar), 'dsh-tenancy-suite: sidebar')
 }
 
 function TenantSidebar({ collapsed = false, width = 280, renderSlot = () => null, toggleSidebar = () => undefined, ui }: {
