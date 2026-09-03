@@ -37,7 +37,7 @@ function TenantNewAgentAction({ wide = true, ui }: ActionProps): ReactElement {
 
 export async function apply(ctx: ClientContext): Promise<() => Promise<void>> {
   const disposeRemote = await ctx.remote?.$mount(tenancyRemoteContribution)
-  const tenantRemote = ctx.remote?.tenant
+  const tenantRemote = ctx.get?.('remote.tenant') as { create(request: { tenantId: string }): Promise<{ sessionId: string }> } | undefined
   const ui: TenantAgentUiService | undefined = tenantRemote && ctx.sessions ? {
     listTenants: () => [{ id: 'acme', name: 'Acme', color: '#f5b84b' }, { id: 'globex', name: 'Globex', color: '#8de1d0' }],
     activeTenant: () => 'acme',
