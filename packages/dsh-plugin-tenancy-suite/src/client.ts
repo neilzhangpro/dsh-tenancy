@@ -1,4 +1,5 @@
 import { createElement, type ReactElement } from 'react'
+import tenancyRemoteContribution from 'dsh-plugin-tenancy/remote'
 
 export const inject = ['slots', 'layout', 'locale', 'remote', 'remote.tenant', 'sessions']
 
@@ -13,7 +14,7 @@ interface ClientContext {
   readonly slots: { inject(name: string, callback: () => unknown): void; register(spec: Record<string, unknown>, component: unknown): unknown }
   readonly layout: { toggleSidebar(): void }
   readonly get?: (name: string) => unknown
-  readonly remote?: { tenant?: { create(request: { tenantId: string }): Promise<{ sessionId: string }> } }
+  readonly remote?: { $mount(contribution: unknown): Promise<() => Promise<void>>; tenant?: { create(request: { tenantId: string }): Promise<{ sessionId: string }> } }
   readonly sessions?: { open(sessionId: string): void }
   effect<T>(effect: () => T, name?: string): T
 }
@@ -34,7 +35,8 @@ function TenantNewAgentAction({ wide = true, ui }: ActionProps): ReactElement {
   )
 }
 
-export function apply(ctx: ClientContext): void {
+export async function apply(ctx: ClientContext): Promise<() => Promise<void>> {
+  const disposeRemote = await ctx.remote?.$mount(tenancyRemoteContribution)
   const tenantRemote = ctx.remote?.tenant
   const ui: TenantAgentUiService | undefined = tenantRemote && ctx.sessions ? {
     listTenants: () => [{ id: 'acme', name: 'Acme', color: '#f5b84b' }, { id: 'globex', name: 'Globex', color: '#8de1d0' }],
@@ -48,4 +50,5 @@ export function apply(ctx: ClientContext): void {
       ({ wide }: { wide?: boolean }) => createElement(TenantNewAgentAction, { wide, ui: ui ?? ctx.get?.('tenantAgentUi') as TenantAgentUiService | undefined }),
     )
   })
+  return async () => { if (disposeRemote) await disposeRemote() }
 }
