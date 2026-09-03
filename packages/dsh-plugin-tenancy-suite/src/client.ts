@@ -1,7 +1,7 @@
 import { createElement, type ReactElement } from 'react'
 import tenancyRemoteContribution from 'dsh-plugin-tenancy/remote'
 
-export const inject = ['slots', 'layout', 'locale', 'remote', 'remote.tenant', 'sessions']
+export const inject = ['slots', 'layout', 'locale', 'remote', 'sessions']
 
 export interface TenantSummary { readonly id: string; readonly name: string; readonly color?: string }
 export interface TenantAgentUiService {
