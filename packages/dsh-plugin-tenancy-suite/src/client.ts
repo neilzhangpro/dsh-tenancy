@@ -14,7 +14,7 @@ interface ClientContext {
   readonly slots: { inject(name: string, callback: () => unknown): void; register(spec: Record<string, unknown>, component: unknown): unknown }
   readonly layout: { toggleSidebar(): void }
   readonly get?: (name: string) => unknown
-  readonly remote?: { $mount(contribution: unknown): Promise<() => Promise<void>>; tenant?: { create(request: { tenantId: string }): Promise<{ sessionId: string }> } }
+  readonly remote?: { $mount(contribution: unknown): Promise<() => Promise<void>> }
   readonly sessions?: { create(options: { sessionId: string }): Promise<string>; open(sessionId: string): void }
   effect<T>(effect: () => T, name?: string): T
 }
@@ -47,14 +47,15 @@ function TenantNewAgentAction({ wide = true, ui }: ActionProps): ReactElement {
 
 export async function apply(ctx: ClientContext): Promise<() => Promise<void>> {
   const disposeRemote = await ctx.remote?.$mount(tenancyRemoteContribution)
-  const tenantRemote = ctx.get?.('remote.tenant') as { create(request: { tenantId: string }): Promise<{ sessionId: string }> } | undefined
+  const tenantRemote = ctx.get?.('remote.tenant') as { create(request: { tenantId: string }): Promise<{ ok: true; value: { sessionId: string } } | { ok: false; error: { message: string } }> } | undefined
   const ui: TenantAgentUiService | undefined = tenantRemote && ctx.sessions ? {
     listTenants: () => [{ id: 'acme', name: 'Acme', color: '#f5b84b' }, { id: 'globex', name: 'Globex', color: '#8de1d0' }],
     activeTenant: () => 'acme',
     create: async (tenantId) => {
       const result = await tenantRemote.create({ tenantId })
-      await ctx.sessions!.create({ sessionId: result.sessionId })
-      return result
+      if (!result.ok) throw new Error(result.error.message)
+      await ctx.sessions!.create({ sessionId: result.value.sessionId })
+      return result.value
     },
     open: (sessionId) => ctx.sessions!.open(sessionId),
   } : undefined
