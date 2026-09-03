@@ -18,10 +18,11 @@
     "@deepseek-ai/dsh-client-ui-workspace": ">=0.1.1-rc.2",
     "@deepseek-ai/dsh-client-locale": ">=0.1.1-rc.2",
     "@deepseek-ai/dsh-client-ui-slots": ">=0.1.1-rc.2",
+    "@deepseek-ai/dsh-api-remotes": ">=0.1.1-rc.2",
     "react": ">=18"
   },
   "dsh": {
     "bundle": { "patch": "./cordis.patch.yml" },
-    "client": { "inject": ["@deepseek-ai/dsh-client-runtime", "@deepseek-ai/dsh-client-ui-renderer", "@deepseek-ai/dsh-client-ui-layout", "@deepseek-ai/dsh-client-ui-session", "@deepseek-ai/dsh-client-ui-workspace", "@deepseek-ai/dsh-client-ui-sidebar", "@deepseek-ai/dsh-client-locale", "@deepseek-ai/dsh-client-ui-slots"], "platform": "web", "immediately": true }
+    "client": { "inject": ["@deepseek-ai/dsh-client-runtime", "@deepseek-ai/dsh-api-remotes", "@deepseek-ai/dsh-client-ui-renderer", "@deepseek-ai/dsh-client-ui-layout", "@deepseek-ai/dsh-client-ui-session", "@deepseek-ai/dsh-client-ui-workspace", "@deepseek-ai/dsh-client-ui-sidebar", "@deepseek-ai/dsh-client-locale", "@deepseek-ai/dsh-client-ui-slots"], "platform": "web", "immediately": true }
   }
 }
