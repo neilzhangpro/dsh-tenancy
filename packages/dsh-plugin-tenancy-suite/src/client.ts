@@ -1,4 +1,4 @@
-import { createElement, type ReactElement } from 'react'
+import { createElement, useState, type ReactElement } from 'react'
 import tenancyRemoteContribution from 'dsh-plugin-tenancy/remote'
 
 export const inject = ['slots', 'layout', 'locale', 'remote', 'sessions']
@@ -21,6 +21,8 @@ interface ClientContext {
 interface ActionProps { readonly wide?: boolean; readonly ui?: TenantAgentUiService }
 
 function TenantNewAgentAction({ wide = true, ui }: ActionProps): ReactElement {
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string>()
   const tenants = ui?.listTenants() ?? []
   const selected = ui?.activeTenant() ?? tenants[0]?.id ?? ''
   return createElement('div', { style: { position: 'relative' } },
@@ -38,7 +40,23 @@ function TenantNewAgentAction({ wide = true, ui }: ActionProps): ReactElement {
           createElement('label', { style: { display: 'grid', gap: 7, color: '#b9fff2', fontSize: 12, fontWeight: 700 } }, 'Tenant',
             createElement('select', { defaultValue: selected, style: { width: '100%', boxSizing: 'border-box', background: '#17252b', color: '#e8edf2', border: '1px solid #36535a', borderRadius: 8, padding: 10, fontSize: 14 } }, tenants.map((tenant) => createElement('option', { key: tenant.id, value: tenant.id }, tenant.name))),
           ),
-          createElement('button', { type: 'button', disabled: !selected, onClick: async (event: { currentTarget: { parentElement: HTMLElement | null } }) => { const id = (event.currentTarget.parentElement?.querySelector('select') as HTMLSelectElement | null)?.value ?? selected; ui.open((await ui.create(id)).sessionId) }, style: { background: '#f5b84b', color: '#17120a', border: 0, borderRadius: 8, padding: 11, cursor: 'pointer', fontWeight: 700, fontSize: 14 } }, 'Create isolated agent')
+          error && createElement('div', { role: 'alert', style: { color: '#ffb4ab', fontSize: 12 } }, error),
+          createElement('button', { type: 'button', disabled: !selected || busy, onClick: async (event: { currentTarget: HTMLElement }) => {
+            if (busy) return
+            const id = (event.currentTarget.parentElement?.querySelector('select') as HTMLSelectElement | null)?.value ?? selected
+            const details = event.currentTarget.closest('details')
+            setBusy(true)
+            setError(undefined)
+            try {
+              const result = await ui.create(id)
+              details?.removeAttribute('open')
+              ui.open(result.sessionId)
+            } catch (cause) {
+              setError(cause instanceof Error ? cause.message : String(cause))
+            } finally {
+              setBusy(false)
+            }
+          }, style: { background: '#f5b84b', color: '#17120a', border: 0, borderRadius: 8, padding: 11, cursor: busy ? 'wait' : 'pointer', fontWeight: 700, fontSize: 14 } }, busy ? 'Creating…' : 'Create isolated agent')
         )
       )
     )
